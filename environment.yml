@@ -5,3 +5,4 @@ channels:
 dependencies:
   - python=3.8
   - requests=2.25.1
+  - pandas=1.2.4

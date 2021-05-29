@@ -50,8 +50,8 @@ if __name__ == "__main__":
     FILEPATH_OUT = args.filepath_out   
     json_ = main(FILEPATH_OUT)
 
-    with open(f"{FILEPATH_OUT}/ADA_hourly.json","w") as j:
+    with open(f"{FILEPATH_OUT}/ADA_GBP_hourly.json","w") as j:
         json.dump(json_,j)
 
-    logging.info(f"Data written successfully to {FILEPATH_OUT}/ADA_hourly.json")
+    logging.info(f"Data written successfully to {FILEPATH_OUT}/ADA_GBP_hourly.json")
     logging.info("Executed successfully.")
