@@ -1,9 +1,17 @@
-import os,logging,argparse,json
+import os, logging, argparse, json
 import sqlite3
 import requests
 import datetime
 import time
 
+"""
+TODO: Inline
+TODO: Document function parameters and outputs
+TODO: Error handling & logging
+TODO: Reformatting
+"""
+
+#  Need API from https://min-api.cryptocompare.com/
 API_KEY = os.getenv("CRYPTO_API_KEY")
 HEADER = {"authorization": f"Apikey {API_KEY}"}
 
@@ -11,60 +19,73 @@ HEADER = {"authorization": f"Apikey {API_KEY}"}
 def adapt_datetime(ts):
     return time.mktime(ts.timetuple())
 
+
 sqlite3.register_adapter(datetime.datetime, adapt_datetime)
+
 
 def setup_db(db_path):
     con = sqlite3.connect(db_path)
 
     # Create table
     with con:
-        con.execute('''CREATE TABLE IF NOT EXISTS CRYPTO_PRICE
-                (DATE timestamp, TICKER text, QTY real, PRICE real, VALUE real )''')
+        con.execute(
+            """CREATE TABLE IF NOT EXISTS CRYPTO_PRICE
+                (DATE timestamp, TICKER text, QTY real, PRICE real, VALUE real )"""
+        )
 
     logging.info("Database and table created")
     return con
 
-def insert_into_db(connection ,ticker ,price , dict):
+
+def insert_into_db(connection, ticker, price, dict):
 
     now = datetime.datetime.now()
     with connection as con:
         if ticker != "SUM":
-            con.execute("""insert into CRYPTO_PRICE
-                        values (?,?,?,?,?)""",(now,ticker,dict[ticker],price,price*dict[ticker]))
+            con.execute(
+                """insert into CRYPTO_PRICE
+                        values (?,?,?,?,?)""",
+                (now, ticker, dict[ticker], price, price * dict[ticker]),
+            )
 
         else:
-            con.execute("""insert into CRYPTO_PRICE
-                        values (?,?,?,?,?)""",(now,ticker,0,price,price))
-
+            con.execute(
+                """insert into CRYPTO_PRICE
+                        values (?,?,?,?,?)""",
+                (now, ticker, 0, price, price),
+            )
 
     logging.info(f"Inserted {ticker} values into database")
     return True
+
 
 def parse_json(json_path):
     with open(json_path) as j:
         crypto_dict = json.load(j)
     return crypto_dict
-    
+
+
 def get_price(crypto):
     API_ENDPOINT = f"https://min-api.cryptocompare.com/data/price?fsym={crypto}&tsyms=GBP"
-    response = requests.get(API_ENDPOINT,headers=HEADER)
-    price = response.json()['GBP']
+    response = requests.get(API_ENDPOINT, headers=HEADER)
+    price = response.json()["GBP"]
     return price
 
-def main(json_path,connection):
+
+def main(json_path, connection):
     crypto_dict = parse_json(json_path)
     wallet_dict = dict()
     for key_ in crypto_dict.keys():
         price = get_price(key_)
         print(f"{key_}: £{round(price*crypto_dict[key_],2)}")
-        wallet_dict[key_] = price*crypto_dict[key_]
-        response = insert_into_db(connection,key_,price,crypto_dict)
-    response = insert_into_db(connection,"SUM",sum(wallet_dict.values()),crypto_dict)
+        wallet_dict[key_] = price * crypto_dict[key_]
+        response = insert_into_db(connection, key_, price, crypto_dict)
+    response = insert_into_db(connection, "SUM", sum(wallet_dict.values()), crypto_dict)
     print(f"Total: £{sum(wallet_dict.values())}")
     return sum(wallet_dict.values())
 
 
-if __name__ =="__main__":
+if __name__ == "__main__":
     logging.basicConfig(
         level=logging.INFO, format="[%(levelname)s: %(asctime)s] %(filename)s, %(funcName)s, line %(lineno)d : %(message)s"
     )
@@ -80,5 +101,5 @@ if __name__ =="__main__":
     args = parser.parse_args()
     FILEPATH_IN = args.filepath_in
     con = setup_db(args.db_path)
-    main(FILEPATH_IN,con)
+    main(FILEPATH_IN, con)
     con.close()
