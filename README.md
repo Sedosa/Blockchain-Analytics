@@ -1,7 +1,9 @@
 # Blockchain-Analytics
-A repository to hold the scripts for calculating(Done), recording(Done) and reporting (Not done) the value of a cryptocurrency portfolio over time.
+A repository to hold the scripts for calculating, recording and reporting the value of a cryptocurrency portfolio over time.
 
-
+- **Calculating** ✅ - `src/crypto_wallet/crypto_wallet.py`
+- **Recording** ✅ - `src/crypto_wallet/crypto_wallet.py`
+- **Recording** ❌ - tbd
 ## Setting up your Environment
 
 This project was run in conda. To create and configure your environment execute
