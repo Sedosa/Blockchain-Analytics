@@ -1,5 +1,6 @@
 # Blockchain-Analytics
-A repository to hold the code for a Data Science platform and End-to-End ML pipeline to predict prices of Cryptocurrencies, no matter how futile.
+A repository to hold the scripts for calculating(Done), recording(Done) and reporting (Not done) the value of a cryptocurrency portfolio over time.
+
 
 ## Setting up your Environment
 
