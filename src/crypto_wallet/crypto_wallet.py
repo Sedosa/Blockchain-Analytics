@@ -1,3 +1,18 @@
+"""
+This is a script that takes a calculates the value of a cryptocurrency portfolio
+It uses JSON in the with quantities of different cryptocurrencies in the form
+
+{
+    "ticker" : volume,
+    "ticker" : volume
+}
+
+gets the live price from an API endpoint and returns the price of each item in the portfolio and the total
+It also writes these into a sqlite3 database for future reference with a timestamp
+
+"""
+
+
 import os, logging, argparse, json
 import sqlite3
 import requests
@@ -5,10 +20,7 @@ import datetime
 import time
 
 """
-TODO: Inline
-TODO: Document function parameters and outputs
 TODO: Error handling & logging
-TODO: Reformatting
 """
 
 #  Need API from https://min-api.cryptocompare.com/
@@ -24,6 +36,19 @@ sqlite3.register_adapter(datetime.datetime, adapt_datetime)
 
 
 def setup_db(db_path):
+    """
+    Initialises a local sqlite3 database and create the table required to hold data.
+
+    Parameters
+    -------------
+    db_path
+        string : A filepath to  a target sqlite database
+
+    Returns
+    -------------
+    con:
+        Connection : Returns a connection to that database
+    """
     con = sqlite3.connect(db_path)
 
     # Create table
@@ -38,6 +63,21 @@ def setup_db(db_path):
 
 
 def insert_into_db(connection, ticker, price, dict):
+    """
+    Writes crypto price data to specified sqlite3 database
+
+    Parameters
+    -------------
+    connection
+        string : Connection to sqlite3 database output of setup_db() fn
+    ticker
+        string : String of the Ticker for a cryptocurrency e.g. BTC
+    price
+        float : Price of a cryptocurrency
+    dict
+        Dictionary : Dictionary loaded from portfolio JSON. output of parse_json() fn
+
+    """
 
     now = datetime.datetime.now()
     with connection as con:
@@ -56,31 +96,62 @@ def insert_into_db(connection, ticker, price, dict):
             )
 
     logging.info(f"Inserted {ticker} values into database")
-    return True
 
 
 def parse_json(json_path):
+    """
+    Loads portfolio in JSON into a python dictionary.
+
+    Parameters
+    -------------
+    json_path
+        string : Path to portfolio JSON described in header documentation
+
+    Returns
+    -------------
+    crypto_dict
+        Dictionary : Dictionary loaded from portfolio json. output of parse_json() fn
+
+    """
+
     with open(json_path) as j:
         crypto_dict = json.load(j)
     return crypto_dict
 
 
-def get_price(crypto):
-    API_ENDPOINT = f"https://min-api.cryptocompare.com/data/price?fsym={crypto}&tsyms=GBP"
+def get_price(ticker):
+    """
+    Returns the live price of a unit a cryptocurrency in GBP.
+
+    Parameters
+    -------------
+    ticker
+        string : String of the Ticker for a cryptocurrency e.g. BTC
+
+
+    Returns
+    -------------
+    price
+        float : Price of a cryptocurrency
+
+    """
+
+    API_ENDPOINT = f"https://min-api.cryptocompare.com/data/price?fsym={ticker}&tsyms=GBP"
     response = requests.get(API_ENDPOINT, headers=HEADER)
     price = response.json()["GBP"]
     return price
 
 
 def main(json_path, connection):
+
     crypto_dict = parse_json(json_path)
     wallet_dict = dict()
     for key_ in crypto_dict.keys():
         price = get_price(key_)
         print(f"{key_}: £{round(price*crypto_dict[key_],2)}")
         wallet_dict[key_] = price * crypto_dict[key_]
-        response = insert_into_db(connection, key_, price, crypto_dict)
-    response = insert_into_db(connection, "SUM", sum(wallet_dict.values()), crypto_dict)
+        insert_into_db(connection, key_, price, crypto_dict)
+    insert_into_db(connection, "SUM", sum(wallet_dict.values()), crypto_dict)
     print(f"Total: £{sum(wallet_dict.values())}")
     return sum(wallet_dict.values())
 
