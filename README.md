@@ -3,7 +3,7 @@ A repository to hold the scripts for calculating, recording and reporting the va
 
 - **Calculating** ✅ - `src/crypto_wallet/crypto_wallet.py`
 - **Recording** ✅ - `src/crypto_wallet/crypto_wallet.py`
-- **Recording** ❌ - tbd
+- **Reporting** ❌ - tbd
 ## Setting up your Environment
 
 This project was run in conda. To create and configure your environment execute
