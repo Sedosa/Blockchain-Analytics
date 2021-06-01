@@ -7,4 +7,4 @@ dependencies:
   - requests=2.25.1
   - pandas=1.2.4
   - black=21.5b1
-  - pyarrow=4.0.1
+  - dash=1.2.0
