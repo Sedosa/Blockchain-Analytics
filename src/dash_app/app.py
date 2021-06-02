@@ -4,7 +4,6 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
-from pandas.io.formats import style
 import plotly.express as px
 
 import pandas as pd
@@ -14,7 +13,10 @@ DB_PATH = os.getenv("DB_PATH","")
 con = sqlite3.connect(DB_PATH)
 
 DF = pd.read_sql_query('SELECT * FROM CRYPTO_PRICE',con)
+logging.info("Data read from sqlite3 database")
 DF['DATE'] = pd.to_datetime(DF['DATE'],unit="s")
+
+logging.info("building dashboard")
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
@@ -47,10 +49,14 @@ def update_line_chart(tickers):
                 }
                 , template="simple_white")
     fig.update_xaxes(rangeslider_visible=True)
+    logging.info("Graph updated")
     return fig
 ################################
 # CALLBACKS
 ################################
 
 if __name__ == '__main__':
+    logging.basicConfig(
+        level=logging.INFO, format="[%(levelname)s: %(asctime)s] %(filename)s, %(funcName)s, line %(lineno)d : %(message)s"
+    )
     app.run_server(debug=True)
