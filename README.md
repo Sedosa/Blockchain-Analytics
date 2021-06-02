@@ -3,7 +3,8 @@ A repository to hold the scripts for calculating, recording and reporting the va
 
 - **Calculating** ✅ - `src/crypto_wallet/crypto_wallet.py`
 - **Recording** ✅ - `src/crypto_wallet/crypto_wallet.py`
-- **Reporting** ❌ - tbd
+- **Reporting** ✅ - `src/dash_app/dash_app.py`
+
 ## Setting up your Environment
 
 This project was run in conda. To create and configure your environment execute
